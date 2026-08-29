@@ -10,7 +10,7 @@
 - 🎂 纪念日
 
 ## 部署
-GitHub Pages已启用，访问：https://zuohang20100323.github.io/private-frontend/
+访问：https://zuohang20100323.github.io/private-frontend/
 
 ---
 由Kairon为糯糯打造 ❤️
