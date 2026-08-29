@@ -4,16 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>日记本</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>📓 写日记</h2>
-  <textarea id="diaryContent" placeholder="今天发生了什么..." rows="5"></textarea><br>
-  <button id="saveBtn">保存</button>
-  
-  <h3>之前的日记：</h3>
-  <div id="diaryList"></div>
-  
-  <a href="index.html">← 返回首页</a>
+  <div class="container">
+    <h2>📓 写日记</h2>
+    <p class="subtitle">把今天的心情藏在这里吧～</p>
+    
+    <div class="card">
+      <div class="form-group">
+        <textarea id="diaryContent" placeholder="今天发生了什么..." rows="5"></textarea>
+      </div>
+      <button id="saveBtn">保存日记</button>
+    </div>
+    
+    <h3>之前的日记：</h3>
+    <div id="diaryList" class="record-list"></div>
+    
+    <a href="index.html" class="back-link">← 返回首页</a>
+  </div>
   
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js'
@@ -25,10 +34,19 @@
       if (error) { alert('读取失败'); return }
       
       const list = document.getElementById('diaryList')
+      if (data.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="emoji">📝</div><p>还没有日记哦，来写第一篇吧～</p></div>'
+        return
+      }
+      
       list.innerHTML = ''
       data.forEach(d => {
         const div = document.createElement('div')
-        div.textContent = `${d.created_at.slice(0,16)} - ${d.content}`
+        div.className = 'record-item'
+        div.innerHTML = `
+          <div class="time">${d.created_at.slice(0,16)}</div>
+          <div class="content">${d.content}</div>
+        `
         list.appendChild(div)
       })
     }
