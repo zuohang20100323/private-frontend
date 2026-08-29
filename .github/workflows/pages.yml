@@ -1,0 +1,9 @@
+pages:
+  build:
+    stage: build
+    script: echo "GitHub Pages部署中..."
+  deploy:
+    stage: deploy
+    script: echo "部署完成"
+    only:
+      - main
