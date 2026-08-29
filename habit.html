@@ -4,18 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>打卡记录</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>✅ 打卡记录</h2>
-  <p>记录每天的习惯～</p>
-  
-  <input id="habitName" placeholder="习惯名称（如：早起）"><br>
-  <button id="addHabit">添加习惯</button>
-  
-  <h3>我的打卡：</h3>
-  <div id="habitList"></div>
-  
-  <a href="index.html">← 返回首页</a>
+  <div class="container">
+    <h2>✅ 打卡记录</h2>
+    <p class="subtitle">记录每天的习惯～</p>
+    
+    <div class="card">
+      <div class="form-group">
+        <input type="text" id="habitName" placeholder="习惯名称（如：早起、读书、运动）">
+      </div>
+      <button id="addHabit">添加习惯</button>
+    </div>
+    
+    <h3>今天 (${new Date().toLocaleDateString('zh-CN')})：</h3>
+    <div id="habitList" class="record-list"></div>
+    
+    <a href="index.html" class="back-link">← 返回首页</a>
+  </div>
   
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js'
@@ -27,19 +34,28 @@
       if (error) { alert('读取失败'); return }
       
       const list = document.getElementById('habitList')
+      if (data.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="emoji">✨</div><p>还没有习惯哦，添加一个吧～</p></div>'
+        return
+      }
+      
       list.innerHTML = ''
       data.forEach(h => {
         const div = document.createElement('div')
-        const btn = document.createElement('button')
-        btn.textContent = h.completed ? '✓ 已完成' : '打卡'
-        btn.onclick = async () => {
-          await supabase.from('habits').update({ completed: !h.completed }).eq('id', h.id)
-          loadHabits()
-        }
-        div.textContent = h.name + ' '
-        div.appendChild(btn)
+        div.className = 'record-item'
+        const btnClass = h.completed ? 'habit-btn completed' : 'habit-btn'
+        const btnText = h.completed ? '✓ 已完成' : '打卡'
+        div.innerHTML = `
+          <span>${h.name}</span>
+          <button class="${btnClass}" onclick="toggleHabit(${h.id})">${btnText}</button>
+        `
         list.appendChild(div)
       })
+    }
+    
+    window.toggleHabit = async (id) => {
+      await supabase.from('habits').update({ completed: !document.querySelector(`button[onclick="toggleHabit(${id})"]`).textContent.includes('已完成') }).eq('id', id)
+      loadHabits()
     }
     
     document.getElementById('addHabit').onclick = async () => {
