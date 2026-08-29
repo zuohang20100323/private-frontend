@@ -20,10 +20,10 @@
   
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js'
-    const supabase = createClient('YOUR_PROJECT_URL', 'YOUR_ANON_KEY')
+    const supabase = createClient('https://olgvyllnrrruxljzejdl.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sZ3Z5bGxucnJydXhsanplamRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0NjU0MzQsImV4cCI6MjEwMTA0MTQzNH0.wwV1lRi2OccQ3PmYMJDfF8jIAQ6PwYEexhi57Pm4xz4')
     
     async function loadLetters() {
-      const { data, error } = await supabase.from('letters').select('*').order('created_at', { ascending: false })
+      const { data, error } = await supabase.from('letters_new').select('*').order('created_at', { ascending: false })
       if (error) { alert('读取失败'); return }
       
       const list = document.getElementById('letterList')
@@ -40,7 +40,7 @@
       const content = document.getElementById('letterContent').value
       if (!content) return alert('写点啥呀')
       
-      const { error } = await supabase.from('letters').insert([{ content, receiver }])
+      const { error } = await supabase.from('letters_new').insert([{ content, receiver }])
       if (error) alert('发送失败')
       else {
         document.getElementById('letterContent').value = ''
