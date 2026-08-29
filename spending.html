@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>消费记录</title>
+</head>
+<body>
+  <h2>💰 消费记录</h2>
+  
+  <input id="amount" placeholder="金额（元）"><br>
+  <input id="category" placeholder="分类（如：吃饭/交通/购物）"><br>
+  <input id="note" placeholder="备注（可选）"><br>
+  <button id="saveBtn">记录</button>
+  
+  <h3>最近消费：</h3>
+  <div id="spendingList"></div>
+  
+  <a href="index.html">← 返回首页</a>
+  
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+    const supabase = createClient('YOUR_PROJECT_URL', 'YOUR_ANON_KEY')
+    
+    async function loadSpending() {
+      const { data, error } = await supabase.from('spending').select('*').order('created_at', { ascending: false }).limit(20)
+      if (error) { alert('读取失败'); return }
+      
+      const list = document.getElementById('spendingList')
+      list.innerHTML = ''
+      data.forEach(s => {
+        const div = document.createElement('div')
+        div.textContent = `${s.created_at.slice(0,16)} | ${s.amount}元 | ${s.category || '未分类'} | ${s.note || ''}`
+        list.appendChild(div)
+      })
+    }
+    
+    document.getElementById('saveBtn').onclick = async () => {
+      const amount = document.getElementById('amount').value
+      if (!amount) return alert('写个金额呀')
+      
+      await supabase.from('spending').insert([{
+        amount: parseFloat(amount),
+        category: document.getElementById('category').value,
+        note: document.getElementById('note').value
+      }])
+      
+      document.getElementById('amount').value = ''
+      document.getElementById('category').value = ''
+      document.getElementById('note').value = ''
+      loadSpending()
+    }
+    
+    loadSpending()
+  </script>
+</body>
+</html>

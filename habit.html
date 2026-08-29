@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>打卡记录</title>
+</head>
+<body>
+  <h2>✅ 打卡记录</h2>
+  <p>记录每天的习惯～</p>
+  
+  <input id="habitName" placeholder="习惯名称（如：早起）"><br>
+  <button id="addHabit">添加习惯</button>
+  
+  <h3>我的打卡：</h3>
+  <div id="habitList"></div>
+  
+  <a href="index.html">← 返回首页</a>
+  
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+    const supabase = createClient('YOUR_PROJECT_URL', 'YOUR_ANON_KEY')
+    
+    async function loadHabits() {
+      const today = new Date().toISOString().slice(0,10)
+      const { data, error } = await supabase.from('habits').select('*').eq('date', today)
+      if (error) { alert('读取失败'); return }
+      
+      const list = document.getElementById('habitList')
+      list.innerHTML = ''
+      data.forEach(h => {
+        const div = document.createElement('div')
+        const btn = document.createElement('button')
+        btn.textContent = h.completed ? '✓ 已完成' : '打卡'
+        btn.onclick = async () => {
+          await supabase.from('habits').update({ completed: !h.completed }).eq('id', h.id)
+          loadHabits()
+        }
+        div.textContent = h.name + ' '
+        div.appendChild(btn)
+        list.appendChild(div)
+      })
+    }
+    
+    document.getElementById('addHabit').onclick = async () => {
+      const name = document.getElementById('habitName').value
+      if (!name) return alert('写个习惯名称呀')
+      
+      const today = new Date().toISOString().slice(0,10)
+      await supabase.from('habits').insert([{ name, date: today }])
+      document.getElementById('habitName').value = ''
+      loadHabits()
+    }
+    
+    loadHabits()
+  </script>
+</body>
+</html>
