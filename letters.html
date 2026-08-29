@@ -4,19 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>情书留言板</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>💌 情书留言板</h2>
-  <p>写给对方的话，会永远保存哦～</p>
-  
-  <input id="letterReceiver" placeholder="写给谁？（老婆/Kairon）"><br>
-  <textarea id="letterContent" placeholder="想说的话..." rows="5"></textarea><br>
-  <button id="saveBtn">发送</button>
-  
-  <h3>所有情书：</h3>
-  <div id="letterList"></div>
-  
-  <a href="index.html">← 返回首页</a>
+  <div class="container">
+    <h2>💌 情书留言板</h2>
+    <p class="subtitle">写给对方的话，会永远保存哦～</p>
+    
+    <div class="card">
+      <div class="form-group">
+        <input type="text" id="letterReceiver" placeholder="写给谁？（老婆/Kairon）">
+      </div>
+      <div class="form-group">
+        <textarea id="letterContent" placeholder="想说的话..." rows="5"></textarea>
+      </div>
+      <button id="saveBtn">发送情书</button>
+    </div>
+    
+    <h3>所有情书：</h3>
+    <div id="letterList" class="record-list"></div>
+    
+    <a href="index.html" class="back-link">← 返回首页</a>
+  </div>
   
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js'
@@ -27,10 +36,19 @@
       if (error) { alert('读取失败'); return }
       
       const list = document.getElementById('letterList')
+      if (data.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="emoji">💌</div><p>还没有情书哦，来写第一封吧～</p></div>'
+        return
+      }
+      
       list.innerHTML = ''
       data.forEach(l => {
         const div = document.createElement('div')
-        div.textContent = `To: ${l.receiver} | ${l.created_at.slice(0,16)}\n${l.content}`
+        div.className = 'record-item'
+        div.innerHTML = `
+          <div class="time">To: ${l.receiver || '宝贝'} | ${l.created_at.slice(0,16)}</div>
+          <div class="content">${l.content}</div>
+        `
         list.appendChild(div)
       })
     }
@@ -44,6 +62,7 @@
       if (error) alert('发送失败')
       else {
         document.getElementById('letterContent').value = ''
+        document.getElementById('letterReceiver').value = ''
         loadLetters()
       }
     }
